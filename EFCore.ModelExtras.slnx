@@ -1,0 +1,11 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/example/">
+    <Project Path="example/EFCore.ModelExtras.Example/EFCore.ModelExtras.Example.csproj" />
+  </Folder>
+  <Project Path="src/EFCore.ModelExtras/EFCore.ModelExtras.csproj" />
+</Solution>

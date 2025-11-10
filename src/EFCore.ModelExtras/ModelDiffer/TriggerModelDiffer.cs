@@ -1,13 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Newtonsoft.Json;
-using Jp.Entities.Models.DbContext.Design;
-using Jp.Entities.Models.DbContext.Design.Operation;
+using EFCore.ModelExtras;
+using EFCore.ModelExtras.Operations;
 
-namespace EFCoreUtility.ModelDiffer;
+namespace EFCore.ModelExtras.Migrations;
 
-public sealed class TriggerModelDiffer : AbstractTableSqlOperationModelDiffer<TriggerDeclaration>
+internal sealed class TriggerModelDiffer : AbstractTableSqlOperationModelDiffer<TriggerDeclaration>
 {
     protected override SqlOperation DeleteSqlOperation(IEntityType entityType, TriggerDeclaration triggerDeclaration)
     {
@@ -40,7 +44,7 @@ public sealed class TriggerModelDiffer : AbstractTableSqlOperationModelDiffer<Tr
 
     protected override IEnumerable<TriggerDeclaration> GetDeclarations(IEntityType? entityType)
         => entityType?.GetAnnotations()
-            .Where(a => a.Name.StartsWith(JpEfAnnotation.Key.HasTrigger))
+            .Where(a => a.Name.StartsWith(ModelExtrasAnnotations.Key.HasTrigger))
             .Select(a => {
                 if (a is { Value: string triggerAnnotationValue }) {
                     return JsonConvert.DeserializeObject<TriggerDeclaration>(triggerAnnotationValue)

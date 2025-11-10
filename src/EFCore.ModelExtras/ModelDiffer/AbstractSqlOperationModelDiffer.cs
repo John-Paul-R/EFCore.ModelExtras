@@ -1,12 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Newtonsoft.Json;
-using Jp.Entities.Models.DbContext.Design;
+using EFCore.ModelExtras;
 
-namespace EFCoreUtility.ModelDiffer;
+namespace EFCore.ModelExtras.Migrations;
 
-public abstract class AbstractSqlOperationModelDiffer<TDeclarer, TDeclaration>
+internal abstract class AbstractSqlOperationModelDiffer<TDeclarer, TDeclaration>
 : IRelationalModelDiffer
 where TDeclarer : IReadOnlyAnnotatable, IAnnotatable
 where TDeclaration : SqlObjectDeclaration

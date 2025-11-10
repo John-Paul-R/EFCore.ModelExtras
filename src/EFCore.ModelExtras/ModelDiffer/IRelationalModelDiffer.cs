@@ -1,9 +1,10 @@
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
-namespace EFCoreUtility.ModelDiffer;
+namespace EFCore.ModelExtras.Migrations;
 
-public interface IRelationalModelDiffer
+internal interface IRelationalModelDiffer
 {
     IEnumerable<MigrationOperation> GetOperations(
         IRelationalModel? source,

@@ -1,10 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Jp.Entities.Models.DbContext.Design;
+using EFCore.ModelExtras;
 
-namespace EFCoreUtility.ModelDiffer;
+namespace EFCore.ModelExtras.Migrations;
 
-public abstract class AbstractTableSqlOperationModelDiffer<TDeclaration>
+internal abstract class AbstractTableSqlOperationModelDiffer<TDeclaration>
 : AbstractSqlOperationModelDiffer<IEntityType, TDeclaration>
 where TDeclaration : SqlObjectDeclaration
 {

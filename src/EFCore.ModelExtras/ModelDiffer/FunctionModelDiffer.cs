@@ -1,12 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Newtonsoft.Json;
-using Jp.Entities.Models.DbContext.Design;
-using Jp.Entities.Models.DbContext.Design.Operation;
+using EFCore.ModelExtras;
+using EFCore.ModelExtras.Operations;
 
-namespace EFCoreUtility.ModelDiffer;
+namespace EFCore.ModelExtras.Migrations;
 
-public sealed class FunctionModelDiffer : AbstractSqlOperationModelDiffer<IModel, FunctionDeclaration>
+internal sealed class FunctionModelDiffer : AbstractSqlOperationModelDiffer<IModel, FunctionDeclaration>
 {
     // We're going to assume that users are providing CREATE OR REPLACE sql...
     // because otherwise this gets hairy (e.g. consider the case where a
@@ -48,7 +52,7 @@ public sealed class FunctionModelDiffer : AbstractSqlOperationModelDiffer<IModel
 
     protected override IEnumerable<FunctionDeclaration> GetDeclarations(IModel? entityType)
         => entityType?.GetAnnotations()
-            .Where(a => a.Name.StartsWith(JpEfAnnotation.Key.DeclareFunction))
+            .Where(a => a.Name.StartsWith(ModelExtrasAnnotations.Key.DeclareFunction))
             .Select(a => {
                 if (a is { Value: string functionAnnotationValue }) {
                     return JsonConvert.DeserializeObject<FunctionDeclaration>(functionAnnotationValue)

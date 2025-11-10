@@ -6,14 +6,14 @@ using Npgsql;
 using Npgsql.NameTranslation;
 using NpgsqlTypes;
 
-namespace Jp.Entities.Models.DbContext.Design;
+namespace EFCore.ModelExtras;
 
 /// <remarks>
 /// This class copies patterns from <see cref="NpgsqlModelBuilderExtensions"/>.
 ///
 /// see also: https://www.npgsql.org/efcore/api/Microsoft.EntityFrameworkCore.NpgsqlModelBuilderExtensions.html
 /// </remarks>
-public static class JpNpgsqlModelBuilderExtensions
+public static class NpgsqlModelBuilderExtensions
 {
     /// <summary>
     ///     Registers a user-defined enum type in the model.

@@ -1,10 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Jp.Entities.Models.DbContext.Design;
+namespace EFCore.ModelExtras;
 
-/// <param name="Name">The name of the trigger</param>
-/// <param name="Source">The trigger source, starting after `name` normally would in a CREATE TRIGGER statement</param>
+/// <summary>
+/// Represents a PostgreSQL trigger declaration to be tracked and migrated by EF Core.
+/// </summary>
+/// <param name="Name">The name of the trigger.</param>
+/// <param name="TriggerTiming">When the trigger fires (BEFORE, AFTER, or INSTEAD OF).</param>
+/// <param name="TriggerEvent">The events that fire the trigger.</param>
+/// <param name="Source">The trigger SQL source, starting after the trigger name in a CREATE TRIGGER statement.</param>
+/// <param name="IsConstraintTrigger">Whether this is a constraint trigger.</param>
 public record TriggerDeclaration(
         string Name,
         PgTriggerTiming TriggerTiming,

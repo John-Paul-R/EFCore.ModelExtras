@@ -4,10 +4,14 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 
-namespace Jp.Entities.Models.DbContext.Design;
+namespace EFCore.ModelExtras;
 
-/// <param name="Name">The name of the function</param>
-/// <param name="Source">The function source</param>
+/// <summary>
+/// Represents a PostgreSQL function declaration to be tracked and migrated by EF Core.
+/// </summary>
+/// <param name="Name">The name of the function.</param>
+/// <param name="Source">The SQL source code to create the function.</param>
+/// <param name="OverloadDiscriminator">Optional discriminator for function overloads.</param>
 public record FunctionDeclaration(
         string Name,
         [StringSyntax("sql")] string Source,
