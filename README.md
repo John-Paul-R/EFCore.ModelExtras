@@ -1,13 +1,24 @@
 # EFCore.ModelExtras
 
-A library that enables Entity Framework Core to track and migrate PostgreSQL triggers and functions as part of your model, making database procedural code a first-class citizen in your migrations.
+A library that enables Entity Framework Core to track and migrate PostgreSQL
+triggers and functions as part of your model, making database procedural code a
+first-class citizen in your migrations.
+
+> [!NOTE]\
+> Disclosure: While I wrote the original foundations of this project, I've used
+> AI _heavily_ to create documentation and to rearrange this into a publishable
+> project, rather than just being written as internal tooling.
 
 ## Features
 
-- **Track PostgreSQL Functions**: Declare functions in your model and have them automatically created/updated via migrations
-- **Track PostgreSQL Triggers**: Define triggers with type-safe configuration and manage them through EF Core migrations
-- **Git-Friendly**: Keep your database procedural code in dedicated source files instead of scattered across migration files
-- **Automatic Migration Generation**: Changes to functions or triggers automatically appear in new migrations
+- **Track PostgreSQL Functions**: Declare functions in your model and have them
+  automatically created/updated via migrations
+- **Track PostgreSQL Triggers**: Define triggers with type-safe configuration
+  and manage them through EF Core migrations
+- **Git-Friendly**: Keep your database procedural code in dedicated source files
+  instead of scattered across migration files
+- **Automatic Migration Generation**: Changes to functions or triggers
+  automatically appear in new migrations
 
 ## Installation
 
@@ -90,13 +101,15 @@ dotnet ef migrations add AddEmailAuditTrigger
 dotnet ef database update
 ```
 
-The generated migration will include SQL to create both the function and the trigger!
+The generated migration will include SQL to create both the function and the
+trigger!
 
 ## API Reference
 
 ### Declaring Functions
 
 #### Simple Function Declaration
+
 ```csharp
 modelBuilder.DeclareFunction(
     "my_function_name",
@@ -105,6 +118,7 @@ modelBuilder.DeclareFunction(
 ```
 
 #### Using FunctionDeclaration Objects
+
 ```csharp
 public static readonly FunctionDeclaration MyFunction = new(
     "my_function",
@@ -117,6 +131,7 @@ modelBuilder.DeclareFunction(MyFunction);
 ### Configuring Triggers
 
 #### Basic Trigger with Custom SQL
+
 ```csharp
 entityBuilder.HasTrigger(
     name: "my_trigger",
@@ -130,6 +145,7 @@ entityBuilder.HasTrigger(
 ```
 
 #### Trigger Executing a Function
+
 ```csharp
 entityBuilder.HasTrigger(
     name: "my_trigger",
@@ -144,23 +160,28 @@ entityBuilder.HasTrigger(
 ### Trigger Configuration Options
 
 #### Trigger Timing
+
 - `PgTriggerTiming.Before` - Execute before the operation
 - `PgTriggerTiming.After` - Execute after the operation
 - `PgTriggerTiming.InsteadOf` - Execute instead of the operation (for views)
 
 #### Trigger Events
+
 - `PgTriggerEventClause.Insert()` - Fire on INSERT
 - `PgTriggerEventClause.Update()` - Fire on any UPDATE
-- `PgTriggerEventClause.Update("col1", "col2")` - Fire only when specific columns are updated
+- `PgTriggerEventClause.Update("col1", "col2")` - Fire only when specific
+  columns are updated
 - `PgTriggerEventClause.Delete()` - Fire on DELETE
 
 #### Execute Mode
+
 - `PgTriggerExecuteFor.Statement` - Execute once per statement
 - `PgTriggerExecuteFor.EachRow` - Execute once per affected row
 
 ## Benefits Over Manual Migration SQL
 
 ### Before (Manual Approach)
+
 ```csharp
 // Migration 20240101_Initial
 migrationBuilder.Sql(@"
@@ -177,6 +198,7 @@ migrationBuilder.Sql(@"
 ```
 
 ### After (Model Extras Approach)
+
 ```csharp
 // Functions.cs - Single source of truth
 public static readonly FunctionDeclaration LogChanges = new(
@@ -190,6 +212,7 @@ public static readonly FunctionDeclaration LogChanges = new(
 ## Advanced Usage
 
 ### Function Overloads
+
 ```csharp
 var calculateTax = new FunctionDeclaration(
     "calculate_tax",
@@ -205,6 +228,7 @@ var calculateTaxInt = new FunctionDeclaration(
 ```
 
 ### Conditional Triggers
+
 ```csharp
 entityBuilder.HasTrigger(
     "tu_audit_significant_changes",
