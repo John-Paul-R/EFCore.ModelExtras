@@ -1,8 +1,15 @@
 # EFCore.ModelExtras
 
 A library that enables Entity Framework Core to track and migrate PostgreSQL
-triggers and functions as part of your model, making database procedural code a
-first-class citizen in your migrations.
+triggers and functions.
+
+A chief goal of this project is that every database relation lives in your
+codebase only once. Functions have one definition, and are referenced in
+triggers via C# variables. In this way, navigating trigger invocations can
+leverage your existing C# tooling rather than having to do complex database
+introspection, or migration greping. Also, git diffs will work on your functions
+and triggers, since they'll just be like any other code file instead of hiding
+in a timestamp-identified half-codegened file!
 
 > [!NOTE]\
 > Disclosure: While I wrote the original foundations of this project, I've used
@@ -11,14 +18,14 @@ first-class citizen in your migrations.
 
 ## Features
 
-- **Track PostgreSQL Functions**: Declare functions in your model and have them
-  automatically created/updated via migrations
-- **Track PostgreSQL Triggers**: Define triggers with type-safe configuration
-  and manage them through EF Core migrations
-- **Git-Friendly**: Keep your database procedural code in dedicated source files
-  instead of scattered across migration files
-- **Automatic Migration Generation**: Changes to functions or triggers
-  automatically appear in new migrations
+- **Track PostgreSQL Functions and Triggers**: Declare functions and triggers in
+  your model and have them automatically created/updated via migrations
+- **Triggers reference Functions with C# reference checks**: Trigger definitions
+  reference the C# FunctionDefinition object, so you can both 1) get editor
+  completions on your exisitng database functions and 2) get compile time errors
+  if you remove a function that's in use
+- **Git-Friendly**: Database procedural code is kept in dedicated source files
+  instead of living principally in scattered migration files
 
 ## Installation
 
