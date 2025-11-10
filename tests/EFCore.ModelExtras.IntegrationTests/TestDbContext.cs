@@ -6,6 +6,7 @@ public class TestDbContext : DbContext
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<EmailAuditLog> EmailAuditLogs => Set<EmailAuditLog>();
+    public DbSet<Post> Posts => Set<Post>();
 
     public TestDbContext(DbContextOptions<TestDbContext> options) : base(options)
     {
@@ -18,7 +19,8 @@ public class TestDbContext : DbContext
         // Declare functions
         modelBuilder
             .DeclareFunction(TestFunctions.LogUserEmailChange)
-            .DeclareFunction(TestFunctions.UpdateTimestamp);
+            .DeclareFunction(TestFunctions.UpdateTimestamp)
+            .DeclareFunction(TestFunctions.ValidatePostContent);
 
         // Configure User entity with triggers
         modelBuilder.Entity<User>(entity => {
@@ -53,6 +55,23 @@ public class TestDbContext : DbContext
             entity.Property(e => e.NewEmail).IsRequired().HasMaxLength(255);
             entity.Property(e => e.ChangedAt).HasDefaultValueSql("NOW()");
         });
+
+        // Configure Post entity with triggers
+        modelBuilder.Entity<Post>(entity => {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Content).IsRequired();
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("NOW()");
+
+            // Trigger to validate content length
+            entity.HasTrigger(
+                "tu_post_validate_content",
+                PgTriggerTiming.Before,
+                PgTriggerEventClause.Insert().Or(PgTriggerEventClause.Update("content")),
+                PgTriggerExecuteFor.EachRow,
+                TestFunctions.ValidatePostContent
+            );
+        });
     }
 }
 
@@ -72,6 +91,14 @@ public class EmailAuditLog
     public string? OldEmail { get; set; }
     public string NewEmail { get; set; } = "";
     public DateTime ChangedAt { get; set; }
+}
+
+public class Post
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = "";
+    public string Content { get; set; } = "";
+    public DateTime CreatedAt { get; set; }
 }
 
 public static class TestFunctions
@@ -103,6 +130,23 @@ public static class TestFunctions
         AS $function$
         BEGIN
             NEW.updated_at = NOW();
+            RETURN NEW;
+        END;
+        $function$
+        """
+    );
+
+    public static readonly FunctionDeclaration ValidatePostContent = new(
+        "validate_post_content",
+        /*language=sql*/"""
+        CREATE OR REPLACE FUNCTION validate_post_content()
+          RETURNS trigger
+          LANGUAGE plpgsql
+        AS $function$
+        BEGIN
+            IF LENGTH(NEW.content) < 10 THEN
+                RAISE EXCEPTION 'Post content must be at least 10 characters';
+            END IF;
             RETURN NEW;
         END;
         $function$
