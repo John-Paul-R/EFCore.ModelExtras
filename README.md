@@ -248,7 +248,7 @@ entityBuilder.HasTrigger(
 
 ## License
 
-[To be determined]
+MIT (see [LICENSE](LICENSE))
 
 ## Contributing
 
