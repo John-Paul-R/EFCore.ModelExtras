@@ -20,6 +20,7 @@ public static class ModelExtrasDbContextOptionsBuilderExtensions
     {
         optionsBuilder.ReplaceService<IMigrationsModelDiffer, ModelExtrasModelDiffer>();
         optionsBuilder.ReplaceService<ICSharpMigrationOperationGenerator, ModelExtrasCSharpGenerator>();
+        optionsBuilder.ReplaceService<IMigrationsSqlGenerator, ModelExtrasSqlGenerator>();
         return optionsBuilder;
     }
 

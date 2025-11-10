@@ -9,11 +9,11 @@ using NpgsqlTypes;
 namespace EFCore.ModelExtras;
 
 /// <remarks>
-/// This class copies patterns from <see cref="NpgsqlModelBuilderExtensions"/>.
+/// This class copies patterns from Npgsql's NpgsqlModelBuilderExtensions.
 ///
 /// see also: https://www.npgsql.org/efcore/api/Microsoft.EntityFrameworkCore.NpgsqlModelBuilderExtensions.html
 /// </remarks>
-public static class NpgsqlModelBuilderExtensions
+public static class ModelExtrasModelBuilderExtensions
 {
     /// <summary>
     ///     Registers a user-defined enum type in the model.

@@ -2,13 +2,12 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-
   <ItemGroup>
     <!-- EF Core packages - use latest 8.0.x patch -->
+    <PackageVersion Include="EFCore.NamingConventions" Version="8.0.3" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.11" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
-
     <!-- Other dependencies -->
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Testcontainers.PostgreSql" Version="3.10.0" />
