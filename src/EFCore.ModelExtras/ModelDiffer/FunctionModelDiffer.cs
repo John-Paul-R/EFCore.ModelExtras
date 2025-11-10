@@ -25,6 +25,13 @@ internal sealed class FunctionModelDiffer : AbstractSqlOperationModelDiffer<IMod
         var sourceModel = source?.Model;
         var targetModel = target?.Model;
 
+        // If target is null (e.g., reverting to migration "0"), generate DROP operations for all source functions
+        if (targetModel is null && sourceModel is not null)
+        {
+            return GetDeclarations(sourceModel)
+                .Select(func => DeleteSqlOperation(sourceModel, func));
+        }
+
         return targetModel is null
             ? Array.Empty<MigrationOperation>()
             : BuildMigrationOperationsForModelModify(sourceModel, targetModel);

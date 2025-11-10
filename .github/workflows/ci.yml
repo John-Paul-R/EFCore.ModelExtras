@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: |
+        dotnet restore src/EFCore.ModelExtras/EFCore.ModelExtras.csproj
+        dotnet restore tests/EFCore.ModelExtras.IntegrationTests/EFCore.ModelExtras.IntegrationTests.csproj
+
+    - name: Build library
+      run: dotnet build src/EFCore.ModelExtras/EFCore.ModelExtras.csproj --no-restore --configuration Release
+
+    - name: Build and run integration tests
+      run: dotnet test tests/EFCore.ModelExtras.IntegrationTests/EFCore.ModelExtras.IntegrationTests.csproj --configuration Release --verbosity normal
