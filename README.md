@@ -93,10 +93,11 @@ Attach triggers to your entities using the fluent API:
 modelBuilder.Entity<User>(eb => {
     eb.HasTrigger(
         "tu_user_email_audit",
-        PgTriggerTiming.After,
-        PgTriggerEventClause.Update("email"),
-        PgTriggerExecuteFor.EachRow,
-        MyDatabaseFunctions.Triggers.LogUserEmailChange
+        tb => tb
+            .After
+            .Update("email")
+            .ForEachRow
+            .Perform(MyDatabaseFunctions.Triggers.LogUserEmailChange);
     );
 });
 ```
@@ -149,16 +150,21 @@ using EFCore.ModelExtras.Migrations;
 
 /// <summary>
 /// Configures EF Core's design-time code generation to use ModelExtras' custom
-/// migration generator. This class is automatically discovered by EF Core when
-/// running commands like 'dotnet ef migrations add'.
+/// components. This class is automatically discovered by EF Core when running
+/// commands like 'dotnet ef migrations add'.
 /// </summary>
 public class ModelExtrasDesignTimeServices : IDesignTimeServices
 {
     public void ConfigureDesignTimeServices(IServiceCollection services)
     {
-        // Replace the default C# migration generator with ModelExtras' version
-        // which formats SQL operations as raw string literals with syntax hints
+        // Detects changes to functions and triggers
+        services.AddSingleton<IMigrationsModelDiffer, ModelExtrasModelDiffer>();
+
+        // Generates C# migration code with pretty-formatted SQL strings
         services.AddSingleton<ICSharpMigrationOperationGenerator, ModelExtrasCSharpGenerator>();
+
+        // Generates the actual SQL to execute at migration exec time
+        services.AddSingleton<IMigrationsSqlGenerator, ModelExtrasSqlGenerator>();
     }
 }
 ```

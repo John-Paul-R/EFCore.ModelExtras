@@ -7,7 +7,7 @@ using EFCore.ModelExtras.Operations;
 
 namespace EFCore.ModelExtras.Migrations;
 
-internal sealed class ModelExtrasSqlGenerator : NpgsqlMigrationsSqlGenerator
+public sealed class ModelExtrasSqlGenerator : NpgsqlMigrationsSqlGenerator
 {
     public ModelExtrasSqlGenerator(
         MigrationsSqlGeneratorDependencies dependencies,

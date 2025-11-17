@@ -33,6 +33,121 @@ public static class ModelExtrasAnnotations
     }
 
 #region HasTrigger
+    public sealed class TriggerBuilder
+        : TriggerBuilder.ITiming,
+        TriggerBuilder.IEventClause,
+        TriggerBuilder.IExecuteFor,
+        TriggerBuilder.IWhenOrAction,
+        TriggerBuilder.IAction,
+        TriggerBuilder.ITriggerDone
+    {
+        internal string Name { get; set; } = null!;
+        internal PgTriggerTiming TriggerTiming{ get; set; }
+        internal List<PgTriggerEventClause> TriggerEvent { get; } = [];
+        internal PgTriggerExecuteFor ExecuteFor { get; set; }
+        internal string? WhenSource { get; set; }
+        internal string PerformSource { get; set; } = null!;
+
+        public interface ITiming
+        {
+            IEventClause Before { get; }
+            IEventClause After { get; }
+        }
+        public interface IEventClause
+        {
+            IExecuteFor Insert { get; }
+            IExecuteFor Update(params string[] columns);
+            IExecuteFor Delete { get; }
+        }
+        public interface IExecuteFor
+        {
+            IEventClause Or { get; }
+            IWhenOrAction ForEachRow { get; }
+            IWhenOrAction ForEachStatement { get; }
+        }
+        public interface IWhenOrAction : IAction
+        {
+            IAction When(string source);
+        }
+        public interface IAction
+        {
+            ITriggerDone Perform(FunctionDeclaration function, string? functionArgs = null);
+            ITriggerDone Perform(string rawSqlAction);
+        }
+        public interface ITriggerDone
+        {
+        }
+
+        public IEventClause Before    { get { TriggerTiming = PgTriggerTiming.Before; return this; } }
+        public IEventClause After     { get { TriggerTiming = PgTriggerTiming.After;  return this; } }
+        public IEventClause InsteadOf { get { TriggerTiming = PgTriggerTiming.After;  return this; } }
+
+        public IExecuteFor Insert  { get { TriggerEvent.Add(PgTriggerEventClause.Insert()); return this; } }
+        public IExecuteFor Update(params string[] columns) { TriggerEvent.Add(PgTriggerEventClause.Update(columns)); return this; }
+        public IExecuteFor Delete  { get { TriggerEvent.Add(PgTriggerEventClause.Delete()); return this; } }
+        public IEventClause Or { get { return this; } }
+
+        public IWhenOrAction ForEachRow       { get { ExecuteFor = PgTriggerExecuteFor.EachRow; return this; } }
+        public IWhenOrAction ForEachStatement { get { ExecuteFor = PgTriggerExecuteFor.Statement; return this; } }
+
+        public IAction When(string source) { WhenSource = source; return this; }
+
+        public ITriggerDone  Perform(FunctionDeclaration function, string? functionArgs = null)
+        {
+            PerformSource = functionArgs is null
+                ? $"{function.Name}()"
+                : $"{function.Name}({functionArgs})";
+            return this;
+        }
+        public ITriggerDone Perform(string rawSqlAction)
+        {
+            PerformSource = rawSqlAction;
+            return this;
+        }
+    }
+
+    /// <summary>
+    /// Configures a PostgreSQL trigger for the entity type with custom SQL source.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
+    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+    /// <param name="name">The name of the trigger.</param>
+    /// <param name="triggerTiming">When the trigger fires (BEFORE, AFTER, or INSTEAD OF).</param>
+    /// <param name="triggerEvents">The events that fire the trigger (INSERT, UPDATE, DELETE).</param>
+    /// <param name="source">The trigger SQL source, starting after the trigger name in a CREATE TRIGGER statement.</param>
+    /// <param name="isConstraintTrigger">Whether this is a constraint trigger.</param>
+    /// <returns>The same builder instance.</returns>
+    public static EntityTypeBuilder<T> HasTrigger<T>(
+        this EntityTypeBuilder<T> entityTypeBuilder,
+        string name,
+        Func<TriggerBuilder.ITiming, TriggerBuilder.ITriggerDone> triggerInfo,
+        bool isConstraintTrigger = false)
+        where T : class
+    {
+        var info = (TriggerBuilder)triggerInfo(new TriggerBuilder());
+
+        var executeForStr = info.ExecuteFor switch
+        {
+            PgTriggerExecuteFor.Statement => "STATEMENT",
+            PgTriggerExecuteFor.EachRow   => "ROW",
+        };
+
+        var triggerDeclaration = new TriggerDeclaration(
+            name,
+            info.TriggerTiming,
+            [.. info.TriggerEvent],
+            Source: $"""
+                FOR EACH {executeForStr}{FmtWhenExpr(info.WhenSource)}
+                EXECUTE FUNCTION {info.PerformSource}
+                """,
+            isConstraintTrigger);
+        entityTypeBuilder.Metadata.AddAnnotation(
+            Key.HasTrigger + '_' + name,
+            NormalizeLineEndings(JsonConvert.SerializeObject(triggerDeclaration)));
+
+        return entityTypeBuilder;
+    }
+
     /// <summary>
     /// Configures a PostgreSQL trigger for the entity type with custom SQL source.
     /// </summary>
@@ -51,7 +166,7 @@ public static class ModelExtrasAnnotations
         PgTriggerEventClause[] triggerEvents,
         string source,
         bool isConstraintTrigger = false)
-        where T : class
+    where T : class
     {
         var triggerDeclaration = new TriggerDeclaration(
             name,
@@ -59,6 +174,7 @@ public static class ModelExtrasAnnotations
             triggerEvents,
             source,
             isConstraintTrigger);
+
         entityTypeBuilder.Metadata.AddAnnotation(
             Key.HasTrigger + '_' + name,
             NormalizeLineEndings(JsonConvert.SerializeObject(triggerDeclaration)));
@@ -128,23 +244,6 @@ public static class ModelExtrasAnnotations
                 """,
             isConstraintTrigger
         );
-
-        static string FmtWhenExpr(string? when)
-        {
-            if (when is null) {
-                return "";
-            }
-
-            if (when.Contains('\n')) {
-                return '\n' + $"""
-                    WHEN (
-                        {when.Replace("\n", "\n    ") /*Increase indent by 1 level for these lines*/}
-                    )
-                    """;
-            }
-
-            return $"\nWHEN ({when})";
-        }
     }
 
     public static EntityTypeBuilder<T> HasTrigger<T>(
@@ -188,6 +287,23 @@ public static class ModelExtrasAnnotations
     private static string NormalizeLineEndings(string str)
     {
         return str.Replace(@"\r\n", @"\n");
+    }
+
+    private static string FmtWhenExpr(string? when)
+    {
+        if (when is null) {
+            return "";
+        }
+
+        if (when.Contains('\n')) {
+            return '\n' + $"""
+                WHEN (
+                    {when.Replace("\n", "\n    ")}
+                )
+                """;
+        }
+
+        return $"\nWHEN ({when})";
     }
 
     /// <summary>
