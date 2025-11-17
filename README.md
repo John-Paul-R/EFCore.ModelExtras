@@ -111,6 +111,31 @@ dotnet ef database update
 The generated migration will include SQL to create both the function and the
 trigger!
 
+```csharp
+// 20251117013830_AddEmailChangeLogging.cs
+migrationBuilder.Sql(/*lang=sql*/"""
+    CREATE OR REPLACE FUNCTION log_user_email_change()
+      RETURNS trigger
+      LANGUAGE plpgsql
+    AS $function$
+    BEGIN
+        INSERT INTO email_audit_log (user_id, old_email, new_email, changed_at)
+        VALUES (NEW.id, OLD.email, NEW.email, NOW());
+        RETURN NEW;
+    END;
+    $function$
+    """);
+
+migrationBuilder.Sql(/*lang=sql*/"""
+    CREATE OR REPLACE TRIGGER tu_user_email_audit
+        AFTER UPDATE OF email
+        ON users
+        FOR EACH ROW
+        EXECUTE FUNCTION log_user_email_change()
+    ;
+    """);
+```
+
 ## API Reference
 
 ### Declaring Functions
