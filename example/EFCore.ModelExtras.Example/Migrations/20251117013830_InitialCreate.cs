@@ -44,13 +44,52 @@ namespace EFCore.ModelExtras.Example.Migrations
                     table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
-            migrationBuilder.Sql("CREATE OR REPLACE FUNCTION log_user_email_change()\n  RETURNS trigger\n  LANGUAGE plpgsql\nAS $function$\nBEGIN\n    -- Only log if email actually changed\n    IF (TG_OP = 'UPDATE' AND OLD.email IS DISTINCT FROM NEW.email) THEN\n        INSERT INTO email_audit_logs (user_id, old_email, new_email, changed_at)\n        VALUES (NEW.id, OLD.email, NEW.email, NOW());\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$");
+            migrationBuilder.Sql(/*lang=sql*/"""
+                CREATE OR REPLACE FUNCTION log_user_email_change()
+                  RETURNS trigger
+                  LANGUAGE plpgsql
+                AS $function$
+                BEGIN
+                    -- Only log if email actually changed
+                    IF (TG_OP = 'UPDATE' AND OLD.email IS DISTINCT FROM NEW.email) THEN
+                        INSERT INTO email_audit_logs (user_id, old_email, new_email, changed_at)
+                        VALUES (NEW.id, OLD.email, NEW.email, NOW());
+                    END IF;
 
-            migrationBuilder.Sql("CREATE OR REPLACE FUNCTION update_timestamp()\n  RETURNS trigger\n  LANGUAGE plpgsql\nAS $function$\nBEGIN\n    NEW.updated_at = NOW();\n    RETURN NEW;\nEND;\n$function$");
+                    RETURN NEW;
+                END;
+                $function$
+                """);
 
-            migrationBuilder.Sql("CREATE OR REPLACE TRIGGER tu_user_email_audit\n    AFTER UPDATE OF email\n    ON Users\n    FOR EACH ROW\n    EXECUTE FUNCTION log_user_email_change()\n;");
+            migrationBuilder.Sql(/*lang=sql*/"""
+                CREATE OR REPLACE FUNCTION update_timestamp()
+                  RETURNS trigger
+                  LANGUAGE plpgsql
+                AS $function$
+                BEGIN
+                    NEW.updated_at = NOW();
+                    RETURN NEW;
+                END;
+                $function$
+                """);
 
-            migrationBuilder.Sql("CREATE OR REPLACE TRIGGER tu_user_update_timestamp\n    BEFORE UPDATE\n    ON Users\n    FOR EACH ROW\n    EXECUTE FUNCTION update_timestamp()\n;");
+            migrationBuilder.Sql(/*lang=sql*/"""
+                CREATE OR REPLACE TRIGGER tu_user_email_audit
+                    AFTER UPDATE OF email
+                    ON Users
+                    FOR EACH ROW
+                    EXECUTE FUNCTION log_user_email_change()
+                ;
+                """);
+
+            migrationBuilder.Sql(/*lang=sql*/"""
+                CREATE OR REPLACE TRIGGER tu_user_update_timestamp
+                    BEFORE UPDATE
+                    ON Users
+                    FOR EACH ROW
+                    EXECUTE FUNCTION update_timestamp()
+                ;
+                """);
         }
 
         /// <inheritdoc />
@@ -59,6 +98,10 @@ namespace EFCore.ModelExtras.Example.Migrations
             migrationBuilder.Sql("DROP TRIGGER tu_user_email_audit ON Users;");
 
             migrationBuilder.Sql("DROP TRIGGER tu_user_update_timestamp ON Users;");
+
+            migrationBuilder.Sql("DROP FUNCTION log_user_email_change;");
+
+            migrationBuilder.Sql("DROP FUNCTION update_timestamp;");
 
             migrationBuilder.DropTable(
                 name: "EmailAuditLogs");

@@ -8,7 +8,7 @@ using EFCore.ModelExtras.Operations;
 
 namespace EFCore.ModelExtras.Migrations;
 
-internal sealed class ModelExtrasCSharpGenerator : CSharpMigrationOperationGenerator
+public sealed class ModelExtrasCSharpGenerator : CSharpMigrationOperationGenerator
 {
     public ModelExtrasCSharpGenerator(CSharpMigrationOperationGeneratorDependencies dependencies)
     : base(dependencies)
