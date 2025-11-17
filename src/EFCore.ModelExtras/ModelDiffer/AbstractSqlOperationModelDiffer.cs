@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Newtonsoft.Json;
 using EFCore.ModelExtras;
 
 namespace EFCore.ModelExtras.Migrations;
@@ -57,7 +57,7 @@ where TDeclaration : SqlObjectDeclaration
             var oldValue = oldKeysToDeclarations[commonTriggerName];
             var newValue = newKeysToDeclarations[commonTriggerName];
 
-            if (JsonConvert.SerializeObject(oldValue) != JsonConvert.SerializeObject(newValue)) {
+            if (JsonSerializer.Serialize(oldValue) != JsonSerializer.Serialize(newValue)) {
                 if (ExplicitDeleteOnDiff) {
                     // commonNames will be an empty array if oldModelItem was null
                     yield return DeleteSqlOperation(oldModelItem!, oldValue);

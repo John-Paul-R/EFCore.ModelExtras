@@ -1,8 +1,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Newtonsoft.Json;
 
 namespace EFCore.ModelExtras;
 
@@ -18,6 +18,7 @@ public record FunctionDeclaration(
         string OverloadDiscriminator = "")
     : SqlObjectDeclaration(Name)
 {
+    [JsonIgnore]
     public override string UniqueKey => $"{Name}{OverloadDiscriminator}";
 }
 
@@ -28,6 +29,7 @@ public record CallableFunctionDeclaration(
     string OverloadDiscriminator = "")
     : FunctionDeclaration(Name, Source, OverloadDiscriminator)
 {
+    [JsonIgnore]
     public override string UniqueKey => $"{Name}{OverloadDiscriminator}";
 }
 
@@ -38,5 +40,6 @@ public record CallableFunctionDeclaration<TParam>(
     string OverloadDiscriminator = "")
     : FunctionDeclaration(Name, Source, OverloadDiscriminator)
 {
+    [JsonIgnore]
     public override string UniqueKey => $"{Name}{OverloadDiscriminator}";
 }

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Newtonsoft.Json;
 using EFCore.ModelExtras;
 using EFCore.ModelExtras.Operations;
 
@@ -62,7 +62,7 @@ internal sealed class FunctionModelDiffer : AbstractSqlOperationModelDiffer<IMod
             .Where(a => a.Name.StartsWith(ModelExtrasAnnotations.Key.DeclareFunction))
             .Select(a => {
                 if (a is { Value: string functionAnnotationValue }) {
-                    return JsonConvert.DeserializeObject<FunctionDeclaration>(functionAnnotationValue)
+                    return JsonSerializer.Deserialize<FunctionDeclaration>(functionAnnotationValue)
                         ?? throw new InvalidOperationException("Function annotation was not convertible to a FunctionDeclaration.");
                 }
 

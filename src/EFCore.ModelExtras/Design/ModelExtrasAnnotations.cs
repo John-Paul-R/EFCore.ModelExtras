@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Newtonsoft.Json;
 
 namespace EFCore.ModelExtras;
 
@@ -143,7 +144,7 @@ public static class ModelExtrasAnnotations
             isConstraintTrigger);
         entityTypeBuilder.Metadata.AddAnnotation(
             Key.HasTrigger + '_' + name,
-            NormalizeLineEndings(JsonConvert.SerializeObject(triggerDeclaration)));
+            NormalizeLineEndings(JsonSerializer.Serialize(triggerDeclaration)));
 
         return entityTypeBuilder;
     }
@@ -177,7 +178,7 @@ public static class ModelExtrasAnnotations
 
         entityTypeBuilder.Metadata.AddAnnotation(
             Key.HasTrigger + '_' + name,
-            NormalizeLineEndings(JsonConvert.SerializeObject(triggerDeclaration)));
+            NormalizeLineEndings(JsonSerializer.Serialize(triggerDeclaration)));
 
         return entityTypeBuilder;
     }
@@ -318,7 +319,7 @@ public static class ModelExtrasAnnotations
     {
         modelBuilder.Model.AddAnnotation(
             $"{Key.DeclareFunction}_{functionDeclaration.Name}{functionDeclaration.OverloadDiscriminator}",
-            NormalizeLineEndings(JsonConvert.SerializeObject(functionDeclaration)));
+            NormalizeLineEndings(JsonSerializer.Serialize(functionDeclaration)));
         return modelBuilder;
     }
 #endregion DeclareFunction

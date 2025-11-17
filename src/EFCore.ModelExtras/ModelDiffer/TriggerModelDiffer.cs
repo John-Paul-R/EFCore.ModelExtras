@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Newtonsoft.Json;
 using EFCore.ModelExtras;
 using EFCore.ModelExtras.Operations;
 
@@ -47,7 +47,7 @@ internal sealed class TriggerModelDiffer : AbstractTableSqlOperationModelDiffer<
             .Where(a => a.Name.StartsWith(ModelExtrasAnnotations.Key.HasTrigger))
             .Select(a => {
                 if (a is { Value: string triggerAnnotationValue }) {
-                    return JsonConvert.DeserializeObject<TriggerDeclaration>(triggerAnnotationValue)
+                    return JsonSerializer.Deserialize<TriggerDeclaration>(triggerAnnotationValue)
                         ?? throw new InvalidOperationException("Trigger annotation was not convertible to a TriggerDeclaration.");
                 }
 

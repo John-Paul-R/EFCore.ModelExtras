@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace EFCore.ModelExtras;
 
@@ -19,6 +20,7 @@ public record TriggerDeclaration(
         bool IsConstraintTrigger = false)
     : SqlObjectDeclaration(Name)
 {
+    [JsonIgnore]
     public override string UniqueKey { get; } = Name;
 }
 

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EFCore.ModelExtras.Example.Migrations
 {
     [DbContext(typeof(ExampleDbContext))]
-    [Migration("20251117013830_InitialCreate")]
+    [Migration("20251117064742_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace EFCore.ModelExtras.Example.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Jp_DeclareFunction_log_user_email_change", "{\"Source\":\"CREATE OR REPLACE FUNCTION log_user_email_change()\\n  RETURNS trigger\\n  LANGUAGE plpgsql\\nAS $function$\\nBEGIN\\n    -- Only log if email actually changed\\n    IF (TG_OP = 'UPDATE' AND OLD.email IS DISTINCT FROM NEW.email) THEN\\n        INSERT INTO email_audit_logs (user_id, old_email, new_email, changed_at)\\n        VALUES (NEW.id, OLD.email, NEW.email, NOW());\\n    END IF;\\n\\n    RETURN NEW;\\nEND;\\n$function$\",\"OverloadDiscriminator\":\"\",\"Name\":\"log_user_email_change\"}")
+                .HasAnnotation("Jp_DeclareFunction_log_user_email_change", "{\"Source\":\"CREATE OR REPLACE FUNCTION log_user_email_change()\\n  RETURNS trigger\\n  LANGUAGE plpgsql\\nAS $function$\\nBEGIN\\n    -- Only log if email actually changed\\n    IF (TG_OP = \\u0027UPDATE\\u0027 AND OLD.email IS DISTINCT FROM NEW.email) THEN\\n        INSERT INTO email_audit_logs (user_id, old_email, new_email, changed_at)\\n        VALUES (NEW.id, OLD.email, NEW.email, NOW());\\n    END IF;\\n\\n    RETURN NEW;\\nEND;\\n$function$\",\"OverloadDiscriminator\":\"\",\"Name\":\"log_user_email_change\"}")
                 .HasAnnotation("Jp_DeclareFunction_update_timestamp", "{\"Source\":\"CREATE OR REPLACE FUNCTION update_timestamp()\\n  RETURNS trigger\\n  LANGUAGE plpgsql\\nAS $function$\\nBEGIN\\n    NEW.updated_at = NOW();\\n    RETURN NEW;\\nEND;\\n$function$\",\"OverloadDiscriminator\":\"\",\"Name\":\"update_timestamp\"}")
                 .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
