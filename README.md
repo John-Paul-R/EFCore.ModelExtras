@@ -136,6 +136,38 @@ migrationBuilder.Sql(/*lang=sql*/"""
     """);
 ```
 
+#### Enabling Pretty SQL in Migrations
+
+To get the formatted raw string output shown above, add this design-time
+services class to your project:
+
+```csharp
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
+using Microsoft.Extensions.DependencyInjection;
+using EFCore.ModelExtras.Migrations;
+
+/// <summary>
+/// Configures EF Core's design-time code generation to use ModelExtras' custom
+/// migration generator. This class is automatically discovered by EF Core when
+/// running commands like 'dotnet ef migrations add'.
+/// </summary>
+public class ModelExtrasDesignTimeServices : IDesignTimeServices
+{
+    public void ConfigureDesignTimeServices(IServiceCollection services)
+    {
+        // Replace the default C# migration generator with ModelExtras' version
+        // which formats SQL operations as raw string literals with syntax hints
+        services.AddSingleton<ICSharpMigrationOperationGenerator, ModelExtrasCSharpGenerator>();
+    }
+}
+```
+
+> **Note:** Without this class, migrations will still work correctly at runtime
+> (due to the `.UseModelExtras()` call in your DbContext), but the generated
+> migration code will use plain escaped strings instead of the readable raw
+> string format shown above.
+
 ## API Reference
 
 ### Declaring Functions
