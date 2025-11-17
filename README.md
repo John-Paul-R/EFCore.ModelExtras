@@ -137,10 +137,10 @@ migrationBuilder.Sql(/*lang=sql*/"""
     """);
 ```
 
-#### Enabling Pretty SQL in Migrations
+### 5. Enabling migration change detection and formatting
 
-To get the formatted raw string output shown above, add this design-time
-services class to your project:
+To have the above items correctly migration-tracked and to get the formatted raw
+string output shown above, add this design-time services class to your project:
 
 ```csharp
 using Microsoft.EntityFrameworkCore.Design;
@@ -168,11 +168,6 @@ public class ModelExtrasDesignTimeServices : IDesignTimeServices
     }
 }
 ```
-
-> **Note:** Without this class, migrations will still work correctly at runtime
-> (due to the `.UseModelExtras()` call in your DbContext), but the generated
-> migration code will use plain escaped strings instead of the readable raw
-> string format shown above.
 
 ## API Reference
 
