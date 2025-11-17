@@ -14,7 +14,7 @@ using EFCore.ModelExtras.Operations;
 namespace EFCore.ModelExtras.Migrations;
 
 #pragma warning disable EF1001
-internal sealed class ModelExtrasModelDiffer : MigrationsModelDiffer
+public sealed class ModelExtrasModelDiffer : MigrationsModelDiffer
 {
     private readonly IRelationalModelDiffer _triggerModelDiffer;
     private readonly IRelationalModelDiffer _functionModelDiffer;

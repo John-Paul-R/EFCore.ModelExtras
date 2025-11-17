@@ -30,10 +30,11 @@ public class ExampleDbContext : DbContext
             // Add trigger to log email changes
             entity.HasTrigger(
                 "tu_user_email_audit",
-                PgTriggerTiming.After,
-                PgTriggerEventClause.Update("email"),
-                PgTriggerExecuteFor.EachRow,
-                DatabaseFunctions.LogUserEmailChange
+                tb => tb
+                    .After
+                    .Update("email")
+                    .ForEachRow
+                    .Perform(DatabaseFunctions.LogUserEmailChange)
             );
 
             // Add trigger to update timestamp on any change
