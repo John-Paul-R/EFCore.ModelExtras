@@ -7,5 +7,6 @@
   <Folder Name="/example/">
     <Project Path="example/EFCore.ModelExtras.Example/EFCore.ModelExtras.Example.csproj" />
   </Folder>
-  <Project Path="src/EFCore.ModelExtras/EFCore.ModelExtras.csproj" />
+  <Project Path="src/EFCore.ModelExtras.Core/EFCore.ModelExtras.Core.csproj" />
+  <Project Path="src/EFCore.ModelExtras.FunctionsAndTriggers/EFCore.ModelExtras.FunctionsAndTriggers.csproj" />
 </Solution>

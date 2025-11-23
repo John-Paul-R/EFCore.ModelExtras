@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using EFCore.ModelExtras.Core;
 
-namespace EFCore.ModelExtras;
+namespace EFCore.ModelExtras.FunctionsAndTriggers;
 
 /// <summary>
 /// Represents a PostgreSQL trigger declaration to be tracked and migrated by EF Core.

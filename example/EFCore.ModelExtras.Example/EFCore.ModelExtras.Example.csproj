@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EFCore.ModelExtras\EFCore.ModelExtras.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.ModelExtras.FunctionsAndTriggers\EFCore.ModelExtras.FunctionsAndTriggers.csproj" />
   </ItemGroup>
 
 </Project>

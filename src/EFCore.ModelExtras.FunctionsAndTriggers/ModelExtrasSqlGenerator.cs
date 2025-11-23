@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Migrations;
-using EFCore.ModelExtras.Operations;
+using EFCore.ModelExtras.FunctionsAndTriggers.Operations;
 
-namespace EFCore.ModelExtras.Migrations;
+namespace EFCore.ModelExtras.FunctionsAndTriggers.Migrations;
 
 public sealed class ModelExtrasSqlGenerator : NpgsqlMigrationsSqlGenerator
 {

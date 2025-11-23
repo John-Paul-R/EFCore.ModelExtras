@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EFCore.ModelExtras;
+namespace EFCore.ModelExtras.Core;
 
 internal static class EnumerableExtensions
 {

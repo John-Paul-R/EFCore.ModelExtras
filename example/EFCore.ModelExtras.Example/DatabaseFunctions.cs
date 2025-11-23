@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using EFCore.ModelExtras.FunctionsAndTriggers;
 
 namespace EFCore.ModelExtras.Example;
 

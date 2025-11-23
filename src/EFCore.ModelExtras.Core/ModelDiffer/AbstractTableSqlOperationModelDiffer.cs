@@ -4,25 +4,42 @@ using System.Linq;
 
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using EFCore.ModelExtras;
 
-namespace EFCore.ModelExtras.Migrations;
+namespace EFCore.ModelExtras.Core.ModelDiffer;
 
-internal abstract class AbstractTableSqlOperationModelDiffer<TDeclaration>
+/// <summary>
+/// Base class for model differs that detect changes to SQL objects scoped to entity types/tables (e.g., triggers).
+/// Specialization of AbstractSqlOperationModelDiffer for table-level SQL objects.
+/// </summary>
+/// <typeparam name="TDeclaration">The type of declaration being tracked (must derive from SqlObjectDeclaration).</typeparam>
+public abstract class AbstractTableSqlOperationModelDiffer<TDeclaration>
 : AbstractSqlOperationModelDiffer<IEntityType, TDeclaration>
 where TDeclaration : SqlObjectDeclaration
 {
+    /// <summary>
+    /// Extracts all declarations from the given entity type.
+    /// </summary>
     protected abstract override IEnumerable<TDeclaration> GetDeclarations(
         IEntityType? modelItem);
 
+    /// <summary>
+    /// Creates a migration operation to add/create a SQL object on a table.
+    /// </summary>
     protected abstract override SqlOperation CreateSqlOperation(
         IEntityType declaringModelItem,
-        TDeclaration triggerDeclaration);
+        TDeclaration declaration);
 
+    /// <summary>
+    /// Creates a migration operation to drop/delete a SQL object from a table.
+    /// </summary>
     protected abstract override SqlOperation DeleteSqlOperation(
         IEntityType declaringModelItem,
-        TDeclaration triggerDeclaration);
+        TDeclaration declaration);
 
+    /// <summary>
+    /// Gets the migration operations needed to transform the source model to the target model.
+    /// Handles entity type additions, deletions, and modifications.
+    /// </summary>
     public override IEnumerable<MigrationOperation> GetOperations(
         IRelationalModel? source,
         IRelationalModel? target)
@@ -37,22 +54,22 @@ where TDeclaration : SqlObjectDeclaration
             .Intersect(newEntityTypeNames)
             .ToArray();
 
-        var deleteTriggerOperations = sourceModel is null
+        var deleteOperations = sourceModel is null
             ? Array.Empty<MigrationOperation>()
             : BuildOperationsForEntityDelete(sourceModel, oldEntityTypeNames.Except(commonEntityTypeNames));
 
-        var addTriggerOperations = targetModel is null
+        var addOperations = targetModel is null
             ? Array.Empty<MigrationOperation>()
             : BuildOperationsForEntityCreate(targetModel, newEntityTypeNames.Except(commonEntityTypeNames));
 
-        var modifyTriggerOperations = sourceModel is null || targetModel is null
+        var modifyOperations = sourceModel is null || targetModel is null
             ? Array.Empty<MigrationOperation>()
             : BuildOperationsForEntityModify(sourceModel, targetModel, commonEntityTypeNames);
 
         return Enumerable.Empty<MigrationOperation>()
-            .Concat(deleteTriggerOperations)
-            .Concat(addTriggerOperations)
-            .Concat(modifyTriggerOperations);
+            .Concat(deleteOperations)
+            .Concat(addOperations)
+            .Concat(modifyOperations);
     }
 
     private IEnumerable<MigrationOperation> BuildOperationsForEntityDelete(
@@ -63,8 +80,8 @@ where TDeclaration : SqlObjectDeclaration
         {
             var deletedEntityType = sourceModel.FindEntityType(deletedTypeName)!;
 
-            foreach (var triggerDeclaration in GetDeclarations(deletedEntityType)) {
-                yield return DeleteSqlOperation(deletedEntityType, triggerDeclaration);
+            foreach (var declaration in GetDeclarations(deletedEntityType)) {
+                yield return DeleteSqlOperation(deletedEntityType, declaration);
             }
         }
     }
@@ -77,8 +94,8 @@ where TDeclaration : SqlObjectDeclaration
         {
             var createdEntityType = targetModel.FindEntityType(newTypeName)!;
 
-            foreach (var triggerDeclaration in GetDeclarations(createdEntityType)) {
-                yield return CreateSqlOperation(createdEntityType, triggerDeclaration);
+            foreach (var declaration in GetDeclarations(createdEntityType)) {
+                yield return CreateSqlOperation(createdEntityType, declaration);
             }
         }
     }

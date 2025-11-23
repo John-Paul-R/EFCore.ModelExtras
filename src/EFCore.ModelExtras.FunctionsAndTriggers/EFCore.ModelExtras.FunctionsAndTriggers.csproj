@@ -8,10 +8,10 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <!-- Package metadata -->
-    <Title>EFCore.ModelExtras</Title>
-    <Description>Track and migrate PostgreSQL triggers and functions as part of your Entity Framework Core model.</Description>
+    <Title>EFCore.ModelExtras.FunctionsAndTriggers</Title>
+    <Description>PostgreSQL functions and triggers plugin for EFCore.ModelExtras.Core. Track and migrate database functions and triggers as part of your Entity Framework Core model.</Description>
     <Authors>John P</Authors>
-    <PackageTags>entityframeworkcore;efcore;postgresql;npgsql;triggers;functions;migrations</PackageTags>
+    <PackageTags>entityframeworkcore;efcore;postgresql;npgsql;triggers;functions;migrations;modelextras</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
@@ -20,6 +20,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../EFCore.ModelExtras.Core/EFCore.ModelExtras.Core.csproj" />
   </ItemGroup>
 
 </Project>

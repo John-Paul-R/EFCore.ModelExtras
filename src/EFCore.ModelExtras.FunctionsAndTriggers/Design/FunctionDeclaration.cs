@@ -2,9 +2,10 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using EFCore.ModelExtras.Core;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace EFCore.ModelExtras;
+namespace EFCore.ModelExtras.FunctionsAndTriggers;
 
 /// <summary>
 /// Represents a PostgreSQL function declaration to be tracked and migrated by EF Core.

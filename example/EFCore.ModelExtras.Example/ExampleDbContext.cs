@@ -1,3 +1,4 @@
+using EFCore.ModelExtras.FunctionsAndTriggers;
 using Microsoft.EntityFrameworkCore;
 
 namespace EFCore.ModelExtras.Example;

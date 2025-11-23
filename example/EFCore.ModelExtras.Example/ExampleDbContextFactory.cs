@@ -1,3 +1,4 @@
+using EFCore.ModelExtras.FunctionsAndTriggers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 

@@ -1,17 +1,19 @@
-using Microsoft.EntityFrameworkCore.Design;
+using EFCore.ModelExtras.Core.Operations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using EFCore.ModelExtras;
-using EFCore.ModelExtras.Operations;
 
-namespace EFCore.ModelExtras.Migrations;
+namespace EFCore.ModelExtras.Core.Generators;
 
-public sealed class ModelExtrasCSharpGenerator : CSharpMigrationOperationGenerator
+/// <summary>
+/// C# migration code generator that formats PrettySqlOperation with raw string literals
+/// for improved readability in generated migration files.
+/// </summary>
+public class PrettySqlCSharpGenerator : CSharpMigrationOperationGenerator
 {
-    public ModelExtrasCSharpGenerator(CSharpMigrationOperationGeneratorDependencies dependencies)
-    : base(dependencies)
+    public PrettySqlCSharpGenerator(CSharpMigrationOperationGeneratorDependencies dependencies)
+        : base(dependencies)
     { }
 
     protected override void Generate(SqlOperation operation, IndentedStringBuilder builder)

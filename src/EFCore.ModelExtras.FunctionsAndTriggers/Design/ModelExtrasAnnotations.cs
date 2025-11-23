@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace EFCore.ModelExtras;
+namespace EFCore.ModelExtras.FunctionsAndTriggers;
 
 /// <summary>
 /// Extension methods for configuring PostgreSQL triggers and functions in Entity Framework Core models.
@@ -323,20 +323,4 @@ public static class ModelExtrasAnnotations
         return modelBuilder;
     }
 #endregion DeclareFunction
-}
-
-public abstract record SqlObjectDeclaration
-{
-    protected SqlObjectDeclaration(string Name)
-    {
-        if (string.IsNullOrWhiteSpace(Name)) {
-            throw new ArgumentException("Cannot be null, empty, or whitespace", nameof(Name));
-        }
-
-        this.Name = Name;
-    }
-
-    [JsonIgnore]
-    public abstract string UniqueKey { get; }
-    public string Name { get; init; }
 }

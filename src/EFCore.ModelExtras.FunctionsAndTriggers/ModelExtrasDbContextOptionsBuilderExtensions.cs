@@ -1,10 +1,12 @@
+using EFCore.ModelExtras.Core;
+using EFCore.ModelExtras.Core.Generators;
+using EFCore.ModelExtras.FunctionsAndTriggers.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
-using EFCore.ModelExtras.Migrations;
 
-namespace EFCore.ModelExtras;
+namespace EFCore.ModelExtras.FunctionsAndTriggers;
 
 /// <summary>
 /// Extension methods for configuring Model Extras on a <see cref="DbContextOptionsBuilder"/>.
@@ -18,9 +20,16 @@ public static class ModelExtrasDbContextOptionsBuilderExtensions
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseModelExtras(this DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.ReplaceService<IMigrationsModelDiffer, ModelExtrasModelDiffer>();
-        optionsBuilder.ReplaceService<ICSharpMigrationOperationGenerator, ModelExtrasCSharpGenerator>();
+        // Use Core's extensibility system to register our plugin
+        optionsBuilder.UseModelExtras(options =>
+        {
+            options.AddPlugin(new ModelExtrasPlugin());
+        });
+
+        // Still need to replace C# and SQL generators for PostgreSQL-specific formatting
+        optionsBuilder.ReplaceService<ICSharpMigrationOperationGenerator, PrettySqlCSharpGenerator>();
         optionsBuilder.ReplaceService<IMigrationsSqlGenerator, ModelExtrasSqlGenerator>();
+
         return optionsBuilder;
     }
 

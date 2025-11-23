@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 
+using EFCore.ModelExtras.Core.ModelDiffer;
+using EFCore.ModelExtras.FunctionsAndTriggers.Operations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using EFCore.ModelExtras;
-using EFCore.ModelExtras.Operations;
 
-namespace EFCore.ModelExtras.Migrations;
+namespace EFCore.ModelExtras.FunctionsAndTriggers.Migrations;
 
 internal sealed class FunctionModelDiffer : AbstractSqlOperationModelDiffer<IModel, FunctionDeclaration>
 {
