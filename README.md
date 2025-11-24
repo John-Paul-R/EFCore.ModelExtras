@@ -1,7 +1,10 @@
 # EFCore.ModelExtras
 
-A library that enables Entity Framework Core to track and migrate PostgreSQL
-triggers and functions.
+A plugin-extensible framework for Entity Framework Core that enables tracking and
+migrating database objects beyond standard tables and columns.
+
+**EFCore.ModelExtras.FunctionsAndTriggers** is the flagship plugin, enabling
+PostgreSQL triggers and functions to be tracked in your EF Core model.
 
 A chief goal of this project is that every database relation lives in your
 codebase only once. Functions have one definition, and are referenced in
@@ -16,16 +19,19 @@ in a timestamp-identified half-codegened file!
 > AI _heavily_ to create documentation and to rearrange this into a publishable
 > project, rather than just being written as internal tooling.
 
-## Features
+## Architecture
 
+**EFCore.ModelExtras.Core**: Plugin infrastructure that orchestrates multiple
+model extension plugins without conflicts. Solves EF Core's limitation where only
+one `IMigrationsModelDiffer` can be active at a time.
+
+**EFCore.ModelExtras.FunctionsAndTriggers**: PostgreSQL plugin providing:
 - **Track PostgreSQL Functions and Triggers**: Declare functions and triggers in
   your model and have them automatically created/updated via migrations
-- **Triggers reference Functions with C# reference checks**: Trigger definitions
-  reference the C# FunctionDefinition object, so you can both 1) get editor
-  completions on your exisitng database functions and 2) get compile time errors
-  if you remove a function that's in use
-- **Git-Friendly**: Database procedural code is kept in dedicated source files
-  instead of living principally in scattered migration files
+- **Type-Safe Function References**: Trigger definitions reference C#
+  `FunctionDeclaration` objects for editor completions and compile-time safety
+- **Git-Friendly**: Database procedural code lives in dedicated source files
+  instead of scattered across migration files
 
 ## Installation
 
@@ -39,11 +45,22 @@ in a timestamp-identified half-codegened file!
 ### 1. Enable Model Extras in Your DbContext
 
 ```csharp
+using EFCore.ModelExtras.Core;
+using EFCore.ModelExtras.FunctionsAndTriggers;
+using EFCore.ModelExtras.FunctionsAndTriggers.Generators;
+using EFCore.ModelExtras.FunctionsAndTriggers.Migrations;
+
 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 {
     optionsBuilder
         .UseNpgsql(connectionString)
-        .UseModelExtras();  // Enable triggers and functions support
+        .UseModelExtras(options => {
+            // Register the Functions and Triggers plugin
+            options.AddPlugin(new FunctionsAndTriggersPlugin());
+        })
+        // Register C# and SQL generators for migration support
+        .ReplaceService<ICSharpMigrationOperationGenerator, PrettySqlCSharpGenerator>()
+        .ReplaceService<IMigrationsSqlGenerator, ModelExtrasSqlGenerator>();
 }
 ```
 
@@ -137,31 +154,36 @@ migrationBuilder.Sql(/*lang=sql*/"""
     """);
 ```
 
-### 5. Enabling migration change detection and formatting
+### 5. Configure Design-Time Services
 
-To have the above items correctly migration-tracked and to get the formatted raw
-string output shown above, add this design-time services class to your project:
+For migration generation, add this design-time services class to your project
+(automatically discovered by EF Core):
 
 ```csharp
+using EFCore.ModelExtras.Core;
+using EFCore.ModelExtras.FunctionsAndTriggers;
+using EFCore.ModelExtras.FunctionsAndTriggers.Generators;
+using EFCore.ModelExtras.FunctionsAndTriggers.Migrations;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.Extensions.DependencyInjection;
-using EFCore.ModelExtras.Migrations;
 
-/// <summary>
-/// Configures EF Core's design-time code generation to use ModelExtras' custom
-/// components. This class is automatically discovered by EF Core when running
-/// commands like 'dotnet ef migrations add'.
-/// </summary>
 public class ModelExtrasDesignTimeServices : IDesignTimeServices
 {
     public void ConfigureDesignTimeServices(IServiceCollection services)
     {
-        // Detects changes to functions and triggers
-        services.AddSingleton<IMigrationsModelDiffer, ModelExtrasModelDiffer>();
+        // Register the Functions and Triggers plugin with Core's extensibility system
+        var options = new ModelExtrasOptions();
+        options.AddPlugin(new FunctionsAndTriggersPlugin());
+        services.AddSingleton<IModelExtrasRegistrationService>(
+            new ModelExtrasRegistrationService(options));
+
+        // Use Core's composite differ that orchestrates all registered differs
+        services.AddSingleton<IMigrationsModelDiffer, CompositeModelDiffer>();
 
         // Generates C# migration code with pretty-formatted SQL strings
-        services.AddSingleton<ICSharpMigrationOperationGenerator, ModelExtrasCSharpGenerator>();
+        services.AddSingleton<ICSharpMigrationOperationGenerator, PrettySqlCSharpGenerator>();
 
         // Generates the actual SQL to execute at migration exec time
         services.AddSingleton<IMigrationsSqlGenerator, ModelExtrasSqlGenerator>();
@@ -305,11 +327,35 @@ entityBuilder.HasTrigger(
 );
 ```
 
+## Creating Custom Plugins
+
+The Core package enables building your own plugins for other database objects:
+
+```csharp
+public class MyCustomPlugin : IModelExtrasPlugin
+{
+    public void RegisterDiffers(IModelExtrasPluginBuilder builder)
+    {
+        // Register your custom differs with priorities
+        builder.RegisterDiffer(new MyCustomDiffer(), priority: 5);
+    }
+}
+
+// Usage
+optionsBuilder.UseModelExtras(options => {
+    options.AddPlugin(new FunctionsAndTriggersPlugin());
+    options.AddPlugin(new MyCustomPlugin());
+});
+```
+
+The Core's `CompositeModelDiffer` orchestrates all registered plugins, executing
+operations in the correct order (Drop phase → EF Core operations → Create phase).
+
 ## Requirements
 
-- .NET 6.0 or higher
-- Entity Framework Core 6.0 or higher
-- Npgsql.EntityFrameworkCore.PostgreSQL 6.0 or higher
+- .NET 8.0 or higher
+- Entity Framework Core 8.0 or higher
+- Npgsql.EntityFrameworkCore.PostgreSQL 8.0 or higher (for FunctionsAndTriggers plugin)
 
 ## License
 

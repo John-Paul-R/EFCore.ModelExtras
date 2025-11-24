@@ -1,7 +1,11 @@
+using EFCore.ModelExtras.Core;
 using EFCore.ModelExtras.FunctionsAndTriggers;
+using EFCore.ModelExtras.FunctionsAndTriggers.Generators;
+using EFCore.ModelExtras.FunctionsAndTriggers.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Testcontainers.PostgreSql;
 
 namespace EFCore.ModelExtras.Example;
@@ -32,7 +36,12 @@ class Program
             optionsBuilder
                 .UseNpgsql(connectionString)
                 .UseSnakeCaseNamingConvention()  // Use PostgreSQL-idiomatic snake_case
-                .UseModelExtras()  // ⭐ Enable triggers and functions support
+                .UseModelExtras(options => {     // ⭐ Register ModelExtras plugin
+                    options.AddPlugin(new FunctionsAndTriggersPlugin());
+                })
+                // Manually register generators for migration support
+                .ReplaceService<ICSharpMigrationOperationGenerator, PrettySqlCSharpGenerator>()
+                .ReplaceService<IMigrationsSqlGenerator, ModelExtrasSqlGenerator>()
                 .EnableSensitiveDataLogging()
                 .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information);
 

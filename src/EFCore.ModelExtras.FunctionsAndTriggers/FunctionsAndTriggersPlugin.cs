@@ -6,7 +6,7 @@ namespace EFCore.ModelExtras.FunctionsAndTriggers;
 /// <summary>
 /// Plugin that adds PostgreSQL function and trigger migration support to EF Core.
 /// </summary>
-public class ModelExtrasPlugin : IModelExtrasPlugin
+public class FunctionsAndTriggersPlugin : IModelExtrasPlugin
 {
     public void RegisterDiffers(IModelExtrasPluginBuilder builder)
     {

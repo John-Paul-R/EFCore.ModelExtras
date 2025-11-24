@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
-namespace EFCore.ModelExtras.Core.Generators;
+namespace EFCore.ModelExtras.FunctionsAndTriggers.Generators;
 
 /// <summary>
 /// C# migration code generator that formats PrettySqlOperation with raw string literals

@@ -1,6 +1,11 @@
+using EFCore.ModelExtras.Core;
 using EFCore.ModelExtras.FunctionsAndTriggers;
+using EFCore.ModelExtras.FunctionsAndTriggers.Generators;
+using EFCore.ModelExtras.FunctionsAndTriggers.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
 
 namespace EFCore.ModelExtras.Example;
 
@@ -17,7 +22,12 @@ public class ExampleDbContextFactory : IDesignTimeDbContextFactory<ExampleDbCont
         // The actual connection string will be provided at runtime
         optionsBuilder
             .UseNpgsql("Host=localhost;Database=example_design;Username=postgres;Password=postgres")
-            .UseModelExtras();
+            .UseModelExtras(options => {
+                options.AddPlugin(new FunctionsAndTriggersPlugin());
+            })
+            // Manually register generators for migration generation
+            .ReplaceService<ICSharpMigrationOperationGenerator, PrettySqlCSharpGenerator>()
+            .ReplaceService<IMigrationsSqlGenerator, ModelExtrasSqlGenerator>();
 
         return new ExampleDbContext(optionsBuilder.Options);
     }

@@ -1,6 +1,6 @@
 using EFCore.ModelExtras.Core;
-using EFCore.ModelExtras.Core.Generators;
 using EFCore.ModelExtras.FunctionsAndTriggers;
+using EFCore.ModelExtras.FunctionsAndTriggers.Generators;
 using EFCore.ModelExtras.FunctionsAndTriggers.Migrations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -19,7 +19,7 @@ public class ModelExtrasDesignTimeServices : IDesignTimeServices
     {
         // Register ModelExtras plugin with Core's extensibility system
         var options = new ModelExtrasOptions();
-        options.AddPlugin(new ModelExtrasPlugin());
+        options.AddPlugin(new FunctionsAndTriggersPlugin());
         services.AddSingleton<IModelExtrasRegistrationService>(
             new ModelExtrasRegistrationService(options));
 
